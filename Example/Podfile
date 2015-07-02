@@ -1,0 +1,13 @@
+source 'https://github.com/CocoaPods/Specs.git'
+use_frameworks!
+
+target 'ObjCMixin_Example', :exclusive => true do
+  pod "ObjCMixin", :path => "../"
+end
+
+target 'ObjCMixin_Tests', :exclusive => true do
+  pod "ObjCMixin", :path => "../"
+
+  pod 'Specta'
+  pod 'Expecta', '~> 1.0.0'
+end

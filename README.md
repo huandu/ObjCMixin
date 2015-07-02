@@ -9,13 +9,22 @@
 
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
+There is a test case in `Example/Tests/Tests.m`. It's a good start to understand how to write mixin in Object-C.
+
+### Import ObjCMixin
+
+```objc
+#import <ObjCMixin/ObjCMixin.h>
+```
+
 ### Define and implement a module
 
 Declare a module.
 
 ```objc
 @module(MyModule)
--(void)hello;
+@property(nonatomic, strong) NSString *prefix;
+- (void)saySomething:(NSString *)something;
 @end
 ```
 
@@ -24,9 +33,21 @@ Implement module methods in a `.m` file.
 ```objc
 @module_implementation(MyModule)
 
--(void)hello
-{
-    NSLog(@"Hello, world!");
+// Module must implement methods required by property explicitly.
+- (NSString *)prefix {
+  // Use `module_ivar` to retrieve a variable in module.
+  return module_ivar(self, prefix);
+}
+
+- (void)setPrefix:(NSString *)prefix {
+  // Update module instance variable.
+  module_ivar(self, prefix) = prefix;
+}
+
+// Implement method as usual.
+- (void)saySomething:(NSString *)something {
+  NSString *prefix = _prefix;
+  NSLog(@"%@: %@", prefix, something);
 }
 
 @end
@@ -38,7 +59,7 @@ Declare an interface.
 
 ```objc
 @interface Foo : NSObject<MyModule>
--(void)foo;
+- (void)foo;
 @end
 ```
 
@@ -49,8 +70,7 @@ Implement Foo's method and mixin it with `MyModule` in a `.m` file.
 
 @implementation Foo
 
--(void)foo
-{
+- (void)foo {
     NSLog(@"Foo");
 }
 
@@ -64,9 +84,25 @@ Use `Foo` to call methods in `MyModule`.
 ```objc
 Foo *f = [[Foo alloc] init];
 [f hello];
+[f foo];
+f.prefix = @"Hey";
+NSLog(@"%@, you!", f.prefix);
 ```
 
-## Requirements
+### Helper macros
+
+ObjCMixin provides following macros to make mixin cool.
+
+- `@module(ModuleName)`: Declare a module.
+- `@module_implementation(ModuleName)`: Implement module methods.
+- `@mixin(TargetClass, ModuleName)`: Copy all methods from module to `TargetClass`.
+- `module_ivar(self, ivar)`: Get or set a variable binded with module instance.
+
+## Limitation
+
+ObjCMixin uses Object-C runtime api to hack classes. Due to runtime api limitations, ObjCMixin can only copy module methods to target class. Instance variables and synthesized properties cannot be copied from module class to target class.
+
+Basically, a module can be considered as a [category](https://developer.apple.com/library/ios/documentation/Cocoa/Conceptual/ProgrammingWithObjectiveC/CustomizingExistingClasses/CustomizingExistingClasses.html#//apple_ref/doc/uid/TP40011210-CH6-SW1). The only difference between a module and a category is that code in module can be shared among more than one interface.
 
 ## Installation
 
@@ -74,7 +110,7 @@ ObjCMixin is available through [CocoaPods](http://cocoapods.org). To install
 it, simply add the following line to your Podfile:
 
 ```ruby
-pod "ObjCMixin"
+pod "ObjCMixin", "~> 0.1.0"
 ```
 
 ## Author

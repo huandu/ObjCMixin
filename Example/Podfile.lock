@@ -1,0 +1,20 @@
+PODS:
+  - Expecta (1.0.0)
+  - ObjCMixin (0.1.1)
+  - Specta (1.0.2)
+
+DEPENDENCIES:
+  - Expecta (~> 1.0.0)
+  - ObjCMixin (from `../`)
+  - Specta
+
+EXTERNAL SOURCES:
+  ObjCMixin:
+    :path: ../
+
+SPEC CHECKSUMS:
+  Expecta: 32604574add2c46a36f8d2f716b6c5736eb75024
+  ObjCMixin: ff3f2d5c1ef8d3adf475bb372639e377ff8de6c0
+  Specta: 9cec98310dca411f7c7ffd6943552b501622abfe
+
+COCOAPODS: 0.37.2

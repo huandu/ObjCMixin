@@ -7,12 +7,21 @@
 
 #import <objc/runtime.h>
 
-#import "Mixin.h"
+#import "ObjCMixin.h"
 
-@implementation Mixin
+@interface ObjCMixin()
 
-+(void)mixClass:(Class)cls toTargetClass:(Class)targetCls
-{
++ (void)copyMethodsFromClass:(Class)cls toTargetClass:(Class)targetCls;
+
+@end
+
+@implementation ObjCMixin
+
++ (void)mixClass:(Class)cls toTargetClass:(Class)targetCls {
+    [self copyMethodsFromClass:cls toTargetClass:targetCls];
+}
+
++ (void)copyMethodsFromClass:(Class)cls toTargetClass:(Class)targetCls {
     unsigned int cnt = 0;
     Method *methods = class_copyMethodList(cls, &cnt);
     
@@ -32,6 +41,17 @@
     }
     
     free(methods);
+}
+
++ (NSMutableDictionary *)associatedDictionaryForInstance:(id)inst withPrefix:(const char *)prefix {
+    id assoc = objc_getAssociatedObject(inst, prefix);
+    
+    if (assoc == nil) {
+        assoc = [NSMutableDictionary dictionary];
+        objc_setAssociatedObject(inst, prefix, assoc, OBJC_ASSOCIATION_RETAIN);
+    }
+    
+    return (NSMutableDictionary *)assoc;
 }
 
 @end
